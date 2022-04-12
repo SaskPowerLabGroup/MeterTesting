@@ -1,5 +1,7 @@
 #meter test filtering
-filename = "Batch_ResponseStream_04-01-2022_164125.txt"
+filenames = ["Batch_ResponseStream_04-06-2022_153412.txt","Batch_ResponseStream_04-06-2022_161511.txt"]
+
+
 valid_request = "********* Load Limit Status Threshold Response *********"
 #not needed as of rn
 valid_meter_ids = [1231234]
@@ -7,11 +9,11 @@ valid_meter_ids = [1231234]
 #Data Headings
 data_headings = "TOI,Flexnet ID, TAO Threshold,Temp Delta Hot Socket Detect,Reduced Threshold Value,Temp Slope,Flexnet Temp,Metro Temp PHA,Metro Temp PHC"
 #functions
-def main():
-    filedata = import_file(filename)
+def main(name):
+    filedata = import_file(name)
     data_group = group_data(filedata)
     filtered = sfilter(data_group)
-    write_to_csv(filtered)
+    write_to_csv(filtered,name)
 
 def import_file(name_of_file):
     """
@@ -55,11 +57,11 @@ def sfilter(data):
     export_list = []
     for i in data:
         tmp = []
-        tmp.append(i[1][3:14]+",")
+        tmp.append(i[1][3:14]+",".strip())
         tmp.append(i[1][17:25]+",")
         tmp.append(pull_nums(i[11])+",")
         tmp.append(pull_nums(i[12])+",")
-        tmp.append(pull_nums(i[13])+",")
+        tmp.append(pull_nums(i[13])+" "+i[13][-10:]+",")
         tmp.append(pull_nums(i[14])+",")
         tmp.append(pull_nums(i[19])+",")
         tmp.append(pull_nums(i[20])+",")
@@ -76,14 +78,14 @@ def write_file_text(list_of_lists):
             f.write("\n")
     f.close()
 
-def write_to_csv(list_of_lists):
-    f = open(filename[0:-4]+"_output.csv","w")
+def write_to_csv(list_of_lists,theName):
+    f = open(theName[0:-4]+"_output.csv","w")
     f.write(data_headings)
-    f.write("/n")
+    f.write("\n")
     for i in list_of_lists:
         for j in i:
             f.write(j)
-            f.write("\n")
+        f.write("\n")
     f.close()
 
 def pull_nums(string):
@@ -97,4 +99,5 @@ def pull_nums(string):
             returnvalue = returnvalue+i
     return returnvalue
 
-main()
+for i in filenames:
+    main(i)
